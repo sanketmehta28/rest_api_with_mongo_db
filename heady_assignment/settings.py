@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import json
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,10 +27,24 @@ SECRET_KEY = 'bzl#-h81sr!@1b3jg7$v3dv60u+iepil4omlw82y6w^8!*(wl5'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
+with open('heady_assignment/credentials.json') as config:
+    configs = json.loads(config.read())
+
+def get_env_var(setting, configs=configs):
+ try:
+     val = configs[setting]
+     if val == 'True':
+         val = True
+     elif val == 'False':
+         val = False
+     return val
+ except KeyError:
+     error_msg = "ImproperlyConfigured: Set {0} variable in credentials.json".format(setting)
+     raise ImproperlyConfigured(error_msg)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -78,13 +94,12 @@ WSGI_APPLICATION = 'heady_assignment.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'heady_db',
-        'HOST': "mongodb+srv://heady_user:admin@heady-app-cluster-grasi.mongodb.net/test?retryWrites=true&w=majority",
-        'USER': 'heady_user',
-        'PASSWORD': 'admin',
+        'NAME': get_env_var('db_name'),
+        'HOST': get_env_var('db_host'),
+        'USER': get_env_var('db_user'),
+        'PASSWORD': get_env_var('db_password'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators

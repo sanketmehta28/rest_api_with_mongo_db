@@ -1,11 +1,9 @@
 # from django.db import models
-from djongo import models
-import ast
-from pytz import unicode
 
+import ast
+from djongo import models
 
 class ListField(models.CharField):
-    # __metaclass__ = models.SubfieldBase
     description = "Stores a python list"
 
     def __init__(self, *args, **kwargs):
@@ -24,19 +22,16 @@ class ListField(models.CharField):
         if value is None:
             return value
 
-        return unicode(value)
+        return value
 
-    def value_to_string(self, obj):
-        value = self._get_val_from_obj(obj)
-        return self.get_db_prep_value(value)
+
 
 # Create your models here.
 class Category(models.Model):
     id = models.IntegerField(default=1, null=False, primary_key=True, auto_created=True)
     name = models.CharField(max_length=100, null=False)
     parent = models.CharField(max_length=100, null=True, blank=True)
-    # child_list = models.ListField(models.CharField, null=True, blank=True, default=None)
-    child_list = ListField(blank=True, null=True, default=None, max_length=500)
+    child_list = ListField(max_length=1000, null=True, blank=True, default=None)
     objects = models.DjongoManager()
 
     def __str__(self):
@@ -49,11 +44,12 @@ class Product(models.Model):
     name = models.CharField(max_length=100, null=False)
     price = models.IntegerField(default=0, null=True, blank=True)
     currency = models.CharField(max_length=10, null=True, default='USD', blank=True)
-    category_list = models.ArrayReferenceField(
-        to=Category,
-        on_delete=models.CASCADE,
+    category_list = models.ManyToManyField(
+        Category,
+        related_name='categories',
         blank=True,
     )
+
     objects = models.DjongoManager()
 
     def __str__(self):
