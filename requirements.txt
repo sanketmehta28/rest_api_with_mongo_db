@@ -1,6 +1,6 @@
 dataclasses==0.6
 django>=2.2.27
-djangorestframework==3.10.2
+djangorestframework==3.11.2
 djangorestframework-stubs==1.0.0
 djangotoolbox==1.8.0
 djongo==1.2.33
